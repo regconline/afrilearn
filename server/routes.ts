@@ -631,7 +631,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment Routes
   app.post('/api/payments', authenticate, async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = insertPaymentSchema.safeParse(req.body);
+      // First, add the userId to the request body
+      const paymentDataWithUser = {
+        ...req.body,
+        userId: req.user!.id
+      };
+      
+      // Add placeholder processing fee (5% of amount)
+      const processingFee = req.body.amount * 0.05;
+      
+      // Set release date for escrow (24 hours after payment)
+      const releaseDate = new Date();
+      releaseDate.setHours(releaseDate.getHours() + 24);
+      
+      // Add these fields to the payment data
+      const fullPaymentData = {
+        ...paymentDataWithUser,
+        processingFee,
+        releaseDate
+      };
+      
+      const validationResult = insertPaymentSchema.safeParse(fullPaymentData);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -641,18 +661,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const paymentData = validationResult.data;
-      
-      // Ensure the payment is associated with the authenticated user
-      paymentData.userId = req.user!.id;
-      
-      // Add placeholder processing fee
-      // In production, this would be calculated based on payment amount and gateway
-      paymentData.processingFee = paymentData.amount * 0.05; // 5% processing fee
-      
-      // Set release date for escrow (24 hours after payment)
-      const releaseDate = new Date();
-      releaseDate.setHours(releaseDate.getHours() + 24);
-      paymentData.releaseDate = releaseDate;
       
       // In production, this would integrate with payment gateways
       // For now, we'll simulate a successful payment
