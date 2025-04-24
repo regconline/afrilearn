@@ -26,7 +26,7 @@ import {
   type Review,
   type InsertReview
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, and, or, desc, sql, between, gte, lte, inArray } from "drizzle-orm";
 
 // Comprehensive storage interface for all entities
@@ -151,8 +151,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTutorProfile(profile: InsertTutorProfile): Promise<TutorProfile> {
-    const [createdProfile] = await db.insert(tutorProfiles).values(profile).returning();
-    return createdProfile;
+    try {
+      console.log("Creating tutor profile with data:", JSON.stringify(profile));
+      // Use the pool from db.ts to execute SQL directly
+      const result = await pool.query(`
+        INSERT INTO tutor_profiles (
+          user_id, education, certifications, experience, subjects, availability
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6
+        ) RETURNING *
+      `, [
+        profile.userId,
+        profile.education,
+        profile.certifications || [],
+        profile.experience || 0,
+        profile.subjects || [],
+        JSON.stringify(profile.availability || {})
+      ]);
+      
+      return result.rows[0] as TutorProfile;
+    } catch (error) {
+      console.error("Error creating tutor profile:", error);
+      throw error;
+    }
   }
 
   async updateTutorProfile(id: number, profileData: Partial<InsertTutorProfile>): Promise<TutorProfile | undefined> {
@@ -188,8 +209,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createStudentProfile(profile: InsertStudentProfile): Promise<StudentProfile> {
-    const [createdProfile] = await db.insert(studentProfiles).values(profile).returning();
-    return createdProfile;
+    try {
+      console.log("Creating student profile with data:", JSON.stringify(profile));
+      // Use the pool from db.ts to execute SQL directly
+      const result = await pool.query(`
+        INSERT INTO student_profiles (
+          user_id, grade, school, subjects, learning_style, parent_id
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6
+        ) RETURNING *
+      `, [
+        profile.userId,
+        profile.grade || null,
+        profile.school || null,
+        profile.subjects || [],
+        profile.learningStyle || null,
+        profile.parentId || null
+      ]);
+      
+      return result.rows[0] as StudentProfile;
+    } catch (error) {
+      console.error("Error creating student profile:", error);
+      throw error;
+    }
   }
 
   async updateStudentProfile(id: number, profileData: Partial<InsertStudentProfile>): Promise<StudentProfile | undefined> {
