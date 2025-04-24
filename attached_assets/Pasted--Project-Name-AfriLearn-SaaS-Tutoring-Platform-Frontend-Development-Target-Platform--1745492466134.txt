@@ -1,0 +1,109 @@
+
+### **Project Name**: AfriLearn SaaS Tutoring Platform (Frontend Development)  
+**Target Platform**: Web + Mobile-First Responsive Design  
+
+---
+
+### **Design Goals**  
+1. **Modern & Elegant Aesthetic**: Clean, minimalist interface inspired by TutorBird.com but with African cultural motifs (e.g., subtle patterns, warm earthy tones).  
+2. **User-Centric**: Intuitive navigation for tutors, students, and parents.  
+3. **Localization**: Design must support multi-language (English, French, Swahili) and African payment systems.  
+4. **Performance**: Optimized for low-bandwidth regions (fast load times, lazy loading).  
+
+---
+
+### **Core Pages & Features**  
+#### **1. Landing Page**  
+- **Hero Section**:  
+  - Tagline: “Empowering African Education” with a vibrant background image of diverse African students.  
+  - CTA buttons: “Start Teaching” (for tutors) and “Find a Tutor” (for students).  
+- **Value Proposition**: 3-4 cards highlighting key features (e.g., “Affordable Pricing,” “Offline Access,” “Multi-Language Support”).  
+- **Testimonials**: Quotes from African educators/students (placeholder text for now).  
+- **Footer**: Language switcher (EN/FR/SW), payment gateway logos (Flutterwave, M-Pesa), and social links.  
+
+#### **2. Tutor Dashboard (Logged-In)**  
+- **Layout**: Sidebar navigation (mimic TutorBird’s dashboard structure).  
+- **Sections**:  
+  - **Calendar**: Interactive grid/scheduler with drag-and-drop (integrate with Google Calendar/Outlook).  
+  - **Students List**: Filterable table with names, progress, and session history.  
+  - **Earnings Overview**: Graph showing revenue (in local currencies: NGN, KES, ZAR).  
+  - **Quick Actions**: “Schedule Session,” “Upload Materials,” “Withdraw Funds.”  
+
+#### **3. Student/Parent Dashboard**  
+- **Course Discovery**: Grid layout with search filters (subject, language, price).  
+- **Session Booking**: Tutor profiles with ratings, availability, and video previews.  
+- **Payment Flow**: Multi-step form with M-Pesa, card, and mobile money options.  
+
+#### **4. Virtual Classroom Interface**  
+- **Style**: Clean, distraction-free layout similar to Zoom but branded with AfriLearn’s colors.  
+  - Integrated video/chat (using Zoom/Google Meet API).  
+  - Sidebar for session notes and downloadable resources.  
+
+---
+
+### **Visual Style Guidelines**  
+#### **Color Palette**  
+- **Primary**: Warm earthy tones inspired by African landscapes:  
+  - `#2A5C3D` (Forest Green – trust, growth)  
+  - `#EBA352` (Sunset Orange – energy, warmth)  
+- **Secondary**: `#F7F5F2` (Cream – neutral background), `#1A365D` (Navy Blue – professionalism).  
+- **Accents**: Gold `#D4AF37` (premium feel) for buttons and highlights.  
+
+#### **Typography**  
+- **Headings**: “Poppins” (bold, modern).  
+- **Body Text**: “Inter” or “Open Sans” (clean readability).  
+- **African Flair**: Use “Ubuntu” font for Swahili/French text to ensure clarity.  
+
+#### **Icons & Graphics**  
+- **Custom Icons**: Blend modernity with African symbolism (e.g., abstract Adinkra symbols for buttons).  
+- **Illustrations**: Use stylized figures of students/tutors in diverse African attire.  
+
+---
+
+### **Responsive Design Requirements**  
+- **Mobile-First Priority**: Ensure all features work seamlessly on smartphones (60%+ African users).  
+- **Breakpoints**: Optimize for 320px (smallest mobile), 768px (tablet), 1200px (desktop).  
+- **Touch-Friendly**: Large buttons, swipeable cards, and collapsible menus.  
+
+---
+
+### **Localization & Accessibility**  
+- **Language Toggle**: Flags + dropdown in header (EN/FR/SW).  
+- **Currency Display**: Dynamic formatting (e.g., ₦1,000, KSh 200, R150).  
+- **Dark Mode**: Optional toggle for low-light environments.  
+- **Accessibility**:  
+  - WCAG 2.1 compliance (contrast ratios, keyboard navigation).  
+  - Alt text for all images/icons.  
+
+---
+
+### **Interactions & Animations**  
+- **Micro-Interactions**:  
+  - Smooth hover effects on buttons/cards.  
+  - Loading spinners with African-inspired patterns.  
+- **Page Transitions**: Subtle fade-ins for a premium feel.  
+- **Error Handling**: Friendly, localized error messages (e.g., “Hakuna kitu kilichopatikana” for Swahili “No results found”).  
+
+---
+
+### **Reference Inspirations**  
+1. **TutorBird.com**:  
+   - Dashboard layout, scheduling grid, and billing sections.  
+   - Clean typography and sidebar navigation.  
+2. **Duolingo**: Gamified progress tracking (for student dashboards).  
+3. **Flutterwave Dashboard**: Payment flow simplicity.  
+
+---
+
+### **Deliverables**  
+1. **Figma/Adobe XD Prototype** (with all core pages and interactions).  
+2. **Mobile/Desktop Responsive HTML/CSS/React Code** (using Lovable.dev’s framework).  
+3. **Design System Documentation**: Colors, fonts, components, and reusable styles.  
+
+---
+
+### **Notes for Developers**  
+- Prioritize performance: Compress images, lazy-load non-critical elements.  
+- Use African imagery that avoids stereotypes (collaborate with African designers if possible).  
+- Test UI with educators in Nigeria/Kenya for feedback.  
+
