@@ -374,8 +374,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createContent(contentData: InsertContent): Promise<Content> {
-    const [createdContent] = await db.insert(content).values(contentData).returning();
-    return createdContent;
+    try {
+      console.log("Creating content with data:", JSON.stringify(contentData));
+      
+      const result = await pool.query(`
+        INSERT INTO content (
+          creator_id, session_id, title, description, type, url, 
+          is_public, is_offline_available, tags
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9
+        ) RETURNING *
+      `, [
+        contentData.creatorId,
+        contentData.sessionId || null,
+        contentData.title,
+        contentData.description || null,
+        contentData.type,
+        contentData.url,
+        contentData.isPublic || false,
+        contentData.isOfflineAvailable || false,
+        contentData.tags || []
+      ]);
+      
+      return result.rows[0] as Content;
+    } catch (error) {
+      console.error("Error creating content:", error);
+      throw error;
+    }
   }
 
   async updateContent(id: number, contentData: Partial<InsertContent>): Promise<Content | undefined> {

@@ -712,7 +712,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Content Routes
   app.post('/api/content', authenticate, async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = insertContentSchema.safeParse(req.body);
+      // Map contentType to type if needed
+      const contentDataWithCreator = {
+        ...req.body,
+        creatorId: req.user!.id,
+        type: req.body.contentType || req.body.type // Accept either field
+      };
+      
+      const validationResult = insertContentSchema.safeParse(contentDataWithCreator);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -722,9 +729,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const contentData = validationResult.data;
-      
-      // Ensure the content is created by the authenticated user
-      contentData.creatorId = req.user!.id;
       
       // In production, this would involve uploading files to S3/CDN
       // and setting the URL accordingly
