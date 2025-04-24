@@ -221,8 +221,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { expiresIn: JWT_EXPIRES_IN }
       );
       
-      // Update last login time
-      await storage.updateUser(user.id, { lastLoginAt: new Date() });
+      // Update last login timestamp
+      const loginDate = new Date();
+      await storage.updateUser(user.id, { 
+        updatedAt: loginDate
+        // lastLoginAt is handled directly in the database updateUser method
+      });
       
       // Remove password from response
       const { password: _, ...userWithoutPassword } = user;
@@ -350,7 +354,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Tutor Profile Routes
   app.post('/api/tutor-profiles', authenticate, requireRole(['tutor']), async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = insertTutorProfileSchema.safeParse(req.body);
+      // First, add the userId to the request body
+      const profileDataWithUserId = {
+        ...req.body,
+        userId: req.user!.id
+      };
+      
+      const validationResult = insertTutorProfileSchema.safeParse(profileDataWithUserId);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -360,9 +370,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const profileData = validationResult.data;
-      
-      // Ensure the profile belongs to the authenticated user
-      profileData.userId = req.user!.id;
       
       // Check if profile already exists
       const existingProfile = await storage.getTutorProfileByUserId(req.user!.id);
@@ -427,7 +434,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Student Profile Routes
   app.post('/api/student-profiles', authenticate, requireRole(['student']), async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = insertStudentProfileSchema.safeParse(req.body);
+      // First, add the userId to the request body
+      const profileDataWithUserId = {
+        ...req.body,
+        userId: req.user!.id
+      };
+      
+      const validationResult = insertStudentProfileSchema.safeParse(profileDataWithUserId);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -437,9 +450,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const profileData = validationResult.data;
-      
-      // Ensure the profile belongs to the authenticated user
-      profileData.userId = req.user!.id;
       
       // Check if profile already exists
       const existingProfile = await storage.getStudentProfileByUserId(req.user!.id);
@@ -462,7 +472,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session Routes
   app.post('/api/sessions', authenticate, async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = insertSessionSchema.safeParse(req.body);
+      // Fix date parsing issues by converting strings to Date objects
+      const requestData = {
+        ...req.body,
+        startTime: new Date(req.body.startTime),
+        endTime: new Date(req.body.endTime)
+      };
+      
+      // For students, we need to set the studentId
+      if (req.user!.role === 'student') {
+        requestData.studentId = req.user!.id;
+      } else if (req.user!.role === 'tutor') {
+        requestData.tutorId = req.user!.id;
+      }
+      
+      const validationResult = insertSessionSchema.safeParse(requestData);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -473,23 +497,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const sessionData = validationResult.data;
       
-      // Verify user roles
-      if (req.user!.role === 'student') {
-        sessionData.studentId = req.user!.id;
-      } else if (req.user!.role === 'tutor') {
-        sessionData.tutorId = req.user!.id;
-      } else if (req.user!.role !== 'admin') {
-        return res.status(403).json({ message: "Insufficient permissions to book sessions" });
-      }
-      
       // Check for double-booking
       // This would involve checking for existing sessions in the time range
       
-      // Generate meeting link (placeholder)
-      // In production, this would integrate with Zoom/Google Meet API
-      sessionData.meetingLink = `https://meet.afrilearn.com/${Math.random().toString(36).substring(2, 15)}`;
+      // Add additional properties not in the schema but needed for the database
+      const sessionToCreate = {
+        ...sessionData,
+        meetingLink: `https://meet.afrilearn.com/${Math.random().toString(36).substring(2, 15)}`
+      };
       
-      const session = await storage.createSession(sessionData);
+      const session = await storage.createSession(sessionToCreate);
       
       res.status(201).json({
         message: "Session created successfully",

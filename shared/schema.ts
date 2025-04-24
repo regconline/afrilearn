@@ -321,12 +321,12 @@ export const insertStudentProfileSchema = createInsertSchema(studentProfiles).om
   updatedAt: true,
 });
 
-export const insertSessionSchema = createInsertSchema(sessions).omit({
+export const insertSessionSchema = createInsertSchema(sessions, {
+  // Customize validators as needed
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  meetingLink: true,
-  recordingUrl: true,
 });
 
 export const insertPaymentSchema = createInsertSchema(payments).omit({
