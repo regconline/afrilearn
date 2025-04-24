@@ -435,8 +435,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createReview(reviewData: InsertReview): Promise<Review> {
-    const [createdReview] = await db.insert(reviews).values(reviewData).returning();
-    return createdReview;
+    try {
+      console.log("Creating review with data:", JSON.stringify(reviewData));
+      
+      const result = await pool.query(`
+        INSERT INTO reviews (
+          session_id, student_id, tutor_id, rating, comment
+        ) VALUES (
+          $1, $2, $3, $4, $5
+        ) RETURNING *
+      `, [
+        reviewData.sessionId || null,
+        reviewData.studentId,
+        reviewData.tutorId,
+        reviewData.rating,
+        reviewData.comment || null
+      ]);
+      
+      return result.rows[0] as Review;
+    } catch (error) {
+      console.error("Error creating review:", error);
+      throw error;
+    }
   }
 
   async getReviewsByTutor(tutorId: number): Promise<Review[]> {

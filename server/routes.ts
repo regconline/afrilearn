@@ -768,7 +768,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Review Routes
   app.post('/api/reviews', authenticate, requireRole(['student']), async (req: AuthRequest, res: Response) => {
     try {
-      const validationResult = insertReviewSchema.safeParse(req.body);
+      // First, add the studentId to the request body
+      const reviewDataWithStudent = {
+        ...req.body,
+        studentId: req.user!.id
+      };
+      
+      const validationResult = insertReviewSchema.safeParse(reviewDataWithStudent);
       
       if (!validationResult.success) {
         return res.status(400).json({ 
@@ -778,9 +784,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const reviewData = validationResult.data;
-      
-      // Ensure the review is submitted by the authenticated student
-      reviewData.studentId = req.user!.id;
       
       // Verify session exists and student participated in it
       if (reviewData.sessionId) {
